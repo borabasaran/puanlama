@@ -102,8 +102,11 @@ function renderDims(){
   $$("#guven button").forEach(b=>b.addEventListener("click",()=>{
     $$("#guven button").forEach(x=>x.setAttribute("aria-pressed", x===b?"true":"false"));
   }));
-  $$("#butuncul button").forEach(b=>b.addEventListener("click",()=>{
-    $$("#butuncul button").forEach(x=>x.setAttribute("aria-pressed", x===b?"true":"false"));
+  $$("#butuncul button").forEach((b,i)=>b.addEventListener("click",()=>{
+    $$("#butuncul button").forEach((x,j)=>{
+      x.setAttribute("aria-pressed", j===i?"true":"false");
+      x.classList.toggle("dolu", j<i);
+    });
     ready();
   }));
 }
@@ -152,7 +155,7 @@ function loadItem(){
   DIMS.forEach(d=>{const h=$("#hint-"+d.id);h.classList.remove("preview");
     h.textContent="Bir puanın üzerine gelin, tanımı burada görünsün.";});
   $$("#guven button").forEach(b=>b.setAttribute("aria-pressed","false"));
-  $$("#butuncul button").forEach(b=>b.setAttribute("aria-pressed","false"));
+  $$("#butuncul button").forEach(b=>{b.setAttribute("aria-pressed","false");b.classList.remove("dolu");});
   $("#unscorable").checked=false; $("#unscorable-why").classList.add("hidden");
   $("#note").value=""; $("#save-msg").textContent=""; $("#save-msg").style.color="";
   ready();
