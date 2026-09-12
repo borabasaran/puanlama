@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Puanlama Yönetim Paneli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Source+Sans+3:wght@400;500;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{--ground:#f4f3ee;--surface:#fff;--surface-2:#eceae3;--ink:#1a211e;--ink-2:#59635d;--line:#d8d5cb;
+--line-2:#c2beb2;--accent:#2c6a5a;--accent-soft:#e2ece8;--accent-ink:#1d4c40;--danger:#8f3a26;
+--amber:#9a6212;--amber-soft:#f6ecd9;--on-accent:#fff;--r:6px;--r-lg:10px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ground:#121614;--surface:#191e1c;--surface-2:#212724;
+--ink:#e6e8e3;--ink-2:#9aa39d;--line:#2c332f;--line-2:#3c443f;--accent:#7bc0aa;--accent-soft:#1d2a26;
+--accent-ink:#a6d8c7;--danger:#d9836b;--amber:#d9a353;--amber-soft:#2a2419;--on-accent:#0d1412}}
+:root[data-theme="dark"]{--ground:#121614;--surface:#191e1c;--surface-2:#212724;--ink:#e6e8e3;--ink-2:#9aa39d;
+--line:#2c332f;--line-2:#3c443f;--accent:#7bc0aa;--accent-soft:#1d2a26;--accent-ink:#a6d8c7;--danger:#d9836b;
+--amber:#d9a353;--amber-soft:#2a2419;--on-accent:#0d1412}
+*{box-sizing:border-box} html,body{margin:0}
+body{background:var(--ground);color:var(--ink);font-family:"Source Sans 3",system-ui,sans-serif;font-size:16px;line-height:1.55}
+.wrap{max-width:1200px;margin:0 auto;padding-inline:20px;padding-block:22px 60px;display:flex;flex-direction:column;gap:18px}
+h1,h2{font-family:Newsreader,Georgia,serif;font-weight:600;margin:0}
+.lbl{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+.btn{background:var(--accent);color:var(--on-accent);border:1px solid var(--accent);padding:7px 14px;border-radius:var(--r);font-weight:600;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-2)}
+.btn.danger{background:transparent;color:var(--danger);border-color:color-mix(in srgb,var(--danger) 45%,transparent)}
+.btn.small{padding:4px 10px;font-size:.82rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+input,select,textarea{font-family:inherit;background:var(--surface);color:var(--ink);border:1px solid var(--line-2);border-radius:var(--r);padding:8px 11px}
+input[type=password],input#key{font-family:"IBM Plex Mono",monospace;min-width:280px;flex:1}
+textarea{width:100%;resize:vertical;font-size:.92rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.tile b{display:block;font-family:"IBM Plex Mono",monospace;font-size:1.7rem;line-height:1.1;color:var(--accent-ink)}
+.small{font-size:.87rem} .muted{color:var(--ink-2)} .mono{font-family:"IBM Plex Mono",monospace}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.85rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 11px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:0}
+.warn{background:color-mix(in srgb,var(--danger) 10%,transparent);border:1px solid color-mix(in srgb,var(--danger) 35%,transparent);border-radius:var(--r);padding:10px 14px;font-size:.87rem}
+.info{background:var(--amber-soft);border:1px solid color-mix(in srgb,var(--amber) 40%,transparent);border-radius:var(--r);padding:10px 14px;font-size:.87rem}
+.bar{height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line)}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:8px 14px;cursor:pointer;color:var(--ink-2);font-weight:600}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:.8rem;font-weight:600;color:var(--ink-2)}
+.drop{border:1.5px dashed var(--line-2);border-radius:var(--r-lg);padding:18px;text-align:center;color:var(--ink-2);font-size:.9rem}
+.drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
+.pill{font-size:.72rem;padding:2px 8px;border-radius:999px;background:var(--surface-2);color:var(--ink-2)}
+.pill.ok{background:var(--accent-soft);color:var(--accent-ink)}
+.hidden{display:none!important}
+@media (max-width:700px){th,td{white-space:normal}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="row">
+    <div><div class="lbl">Yönetim paneli</div><h1 style="font-size:1.6rem">Puanlama platformu</h1></div>
+    <div class="spacer"></div>
+    <span class="small muted" id="conn"></span>
+  </div>
+
+  <div class="card" id="auth">
+    <div class="lbl" style="margin-bottom:8px">Erişim</div>
+    <p class="small muted" style="margin-top:0">Bu panel <b>service_role</b> anahtarıyla çalışır. Anahtar hiçbir dosyaya yazılmaz; yalnızca bu sekmenin belleğinde tutulur ve sekmeyi kapatınca silinir. Supabase panelinde <span class="mono">Project Settings › API</span> altındadır.</p>
+    <div class="row"><input type="password" id="key" placeholder="service_role anahtarı" autocomplete="off"><button class="btn" id="btn-auth">Bağlan</button></div>
+    <p class="warn" style="margin-bottom:0">Bu anahtar tüm veriye tam erişim verir. Paneli yalnızca kendi bilgisayarınızda açın; anahtarı kimseyle paylaşmayın.</p>
+  </div>
+
+  <div id="app" class="hidden" style="display:flex;flex-direction:column;gap:18px">
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-veri" aria-selected="true">Veri ve izleme</button>
+      <button role="tab" id="tab-metin" aria-selected="false">Metin havuzu</button>
+    </div>
+
+    <!-- ============ VERİ ============ -->
+    <section id="p-veri" style="display:flex;flex-direction:column;gap:18px">
+      <div class="row">
+        <button class="btn ghost small" id="btn-load">Yenile</button>
+        <button class="btn small" id="btn-csv">Puanlamalar (CSV)</button>
+        <button class="btn ghost small" id="btn-long">Uzun biçim — MFRM (CSV)</button>
+        <div class="spacer"></div>
+        <span class="small muted" id="msg"></span>
+      </div>
+      <div class="grid4" id="tiles"></div>
+      <div>
+        <div class="lbl" style="margin-bottom:8px">Metin başına puanlanma sayısı</div>
+        <div class="card" id="coverage"></div>
+      </div>
+      <div>
+        <div class="lbl" style="margin-bottom:8px">Puanlayıcı özeti</div>
+        <div class="tblwrap"><table id="tbl-r"><thead><tr>
+          <th>token</th><th>koşul</th><th>puanlanan</th><th>ort. bütüncül</th><th>ort. süre (sn)</th><th>puanlanamaz</th><th>son işlem</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+      <div>
+        <div class="lbl" style="margin-bottom:8px">Kayıtlar</div>
+        <div class="tblwrap"><table id="tbl-p"><thead><tr>
+          <th>token</th><th>metin</th><th>b1</th><th>b2</th><th>b3</th><th>b4</th><th>bütüncül</th>
+          <th>gösterilen YZ</th><th>kaydırma</th><th>güven</th><th>puanlanamaz</th><th>süre</th><th>zaman</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- ============ METİN HAVUZU ============ -->
+    <section id="p-metin" class="hidden" style="display:flex;flex-direction:column;gap:18px">
+
+      <div class="info">
+        Her metin iki biçimde saklanır: <b>altın standart transkripsiyon</b> (Word veya düz metin dosyasından)
+        ve <b>taranmış el yazısı görüntüsü</b> (PNG, JPG veya PDF). Üçüncü alan olan <b>ham tanıma çıktısı</b>,
+        el yazısı tanıma alt çalışmasında kullanılacak, düzeltilmemiş HTR metnidir.
+        Görüntüler özel bir depolama kovasında tutulur; bağlantıları yalnızca bu panelden, süreli imzalı adresle açılır.
+      </div>
+
+      <div class="card">
+        <div class="lbl" style="margin-bottom:10px">Toplu yükleme — Word/metin dosyaları</div>
+        <div class="drop" id="drop-docx">
+          <b>.docx</b> veya <b>.txt</b> dosyalarını buraya sürükleyin ya da <label style="text-decoration:underline;cursor:pointer">seçin<input type="file" id="f-bulk" multiple accept=".docx,.txt" class="hidden"></label><br>
+          <span class="small">Metin kodu dosya adından alınır (ör. <span class="mono">B1-05.docx</span> → <span class="mono">B1-05</span>). Düzey, kodun başındaki etiketten çıkarılır.</span>
+        </div>
+        <div id="bulk-log" class="small mono" style="margin-top:10px"></div>
+      </div>
+
+      <div class="card">
+        <div class="lbl" style="margin-bottom:10px">Tek metin ekle / güncelle</div>
+        <div class="form-grid">
+          <div class="field"><label for="m-id">Metin kodu</label><input id="m-id" class="mono" placeholder="B1-05"></div>
+          <div class="field"><label for="m-duzey">Düzey</label><select id="m-duzey"><option>A2</option><option>B1</option><option>B2</option><option>C1</option></select></div>
+          <div class="field"><label for="m-gorev">Görev türü</label><input id="m-gorev" placeholder="Forum yorumu"></div>
+          <div class="field"><label for="m-capa">Çapa seti</label>
+            <label class="row small" style="gap:6px"><input type="checkbox" id="m-capa"> Tüm puanlayıcılara verilsin</label></div>
+        </div>
+        <div class="field" style="margin-top:12px"><label for="m-prompt">Görev yönergesi</label>
+          <input id="m-prompt" placeholder="Bir arkadaşınıza hafta sonu planınızı anlatan kısa bir e-posta yazınız."></div>
+        <div class="field" style="margin-top:12px">
+          <label for="m-trans">Altın standart transkripsiyon
+            <label style="font-weight:400;text-decoration:underline;cursor:pointer;margin-left:8px">dosyadan al<input type="file" id="f-trans" accept=".docx,.txt" class="hidden"></label>
+          </label>
+          <textarea id="m-trans" rows="8" placeholder="Metni buraya yapıştırın veya bir .docx/.txt dosyasından alın."></textarea>
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label for="m-htr">Ham tanıma çıktısı (isteğe bağlı, alt çalışma için)
+            <label style="font-weight:400;text-decoration:underline;cursor:pointer;margin-left:8px">dosyadan al<input type="file" id="f-htr" accept=".docx,.txt" class="hidden"></label>
+          </label>
+          <textarea id="m-htr" rows="4" placeholder="HTR sisteminin düzeltilmemiş çıktısı."></textarea>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <label class="btn ghost small" style="cursor:pointer">Görüntü seç (PNG/JPG/PDF)<input type="file" id="f-img" accept="image/png,image/jpeg,image/webp,application/pdf" class="hidden"></label>
+          <span class="small muted" id="img-name">Dosya seçilmedi</span>
+          <div class="spacer"></div>
+          <button class="btn ghost small" id="btn-clear">Formu temizle</button>
+          <button class="btn" id="btn-save-text">Kaydet</button>
+        </div>
+        <p class="small" id="save-text-msg" style="margin:10px 0 0"></p>
+      </div>
+
+      <div>
+        <div class="row" style="margin-bottom:8px">
+          <div class="lbl">Havuzdaki metinler</div>
+          <div class="spacer"></div>
+          <button class="btn ghost small" id="btn-load-texts">Yenile</button>
+        </div>
+        <div class="tblwrap"><table id="tbl-m"><thead><tr>
+          <th>kod</th><th>düzey</th><th>görev</th><th>çapa</th><th>transkripsiyon</th><th>görüntü</th><th>ham HTR</th><th>puanlanma</th><th>durum</th><th></th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+"use strict";
+const SB_URL = "https://dfpwqgzinuwwjwzxrioq.supabase.co";
+const BUCKET = "metin-gorselleri";
+let KEY=null, ROWS=[], TEXTS=[], KAPSAM=[], IMG=null;
+const $ = s => document.querySelector(s);
+
+/* ---------- REST yardımcıları ---------- */
+function H(extra){ return Object.assign({apikey:KEY, Authorization:"Bearer "+KEY}, extra||{}); }
+async function q(path){
+  const r = await fetch(SB_URL+"/rest/v1/"+path, {headers:H()});
+  if(!r.ok) throw new Error((await r.text()).slice(0,300));
+  return r.json();
+}
+async function upsert(table, body, onConflict){
+  const r = await fetch(SB_URL+"/rest/v1/"+table+(onConflict?"?on_conflict="+onConflict:""), {
+    method:"POST",
+    headers:H({"Content-Type":"application/json","Prefer":"resolution=merge-duplicates,return=representation"}),
+    body:JSON.stringify(body)
+  });
+  if(!r.ok) throw new Error((await r.text()).slice(0,300));
+  return r.json();
+}
+async function patch(table, filter, body){
+  const r = await fetch(SB_URL+"/rest/v1/"+table+"?"+filter, {
+    method:"PATCH", headers:H({"Content-Type":"application/json","Prefer":"return=representation"}),
+    body:JSON.stringify(body)
+  });
+  if(!r.ok) throw new Error((await r.text()).slice(0,300));
+  return r.json();
+}
+async function uploadFile(path, file){
+  const r = await fetch(SB_URL+"/storage/v1/object/"+BUCKET+"/"+encodeURIComponent(path), {
+    method:"POST", headers:H({"Content-Type":file.type||"application/octet-stream","x-upsert":"true"}), body:file
+  });
+  if(!r.ok) throw new Error((await r.text()).slice(0,300));
+  return path;
+}
+async function signedUrl(path, sec){
+  const r = await fetch(SB_URL+"/storage/v1/object/sign/"+BUCKET+"/"+encodeURIComponent(path), {
+    method:"POST", headers:H({"Content-Type":"application/json"}), body:JSON.stringify({expiresIn:sec||3600})
+  });
+  if(!r.ok) throw new Error((await r.text()).slice(0,300));
+  const j = await r.json();
+  return SB_URL + "/storage/v1" + j.signedURL;
+}
+
+/* ---------- dosya okuma ---------- */
+async function readTextFile(file){
+  if(file.name.toLowerCase().endsWith(".docx")){
+    if(typeof JSZip === "undefined") throw new Error("Word okuyucu yüklenemedi; .txt kullanın veya metni yapıştırın.");
+    const zip = await JSZip.loadAsync(await file.arrayBuffer());
+    const entry = zip.file("word/document.xml");
+    if(!entry) throw new Error("Geçersiz .docx dosyası.");
+    const xml = await entry.async("string");
+    return xml
+      .replace(/<w:p[ >][\s\S]*?(?=<w:p[ >]|$)/g, m => m.replace(/<[^>]+>/g,"") + "\n\n")
+      .replace(/<[^>]+>/g,"")
+      .replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&")
+      .replace(/\n{3,}/g,"\n\n").trim();
+  }
+  return (await file.text()).trim();
+}
+function duzeyDen(kod){
+  const m = String(kod).toUpperCase().match(/\b(A2|B1|B2|C1)\b/);
+  return m ? m[1] : "B1";
+}
+
+/* ---------- veri sekmesi ---------- */
+function csv(rows, cols){
+  const esc=v=>{const s=(v===null||v===undefined)?"":String(v);return /[";\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
+  return cols.join(";")+"\n"+rows.map(r=>cols.map(c=>esc(r[c])).join(";")).join("\n");
+}
+function download(name,text){
+  const b=new Blob(["﻿"+text],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+async function loadData(){
+  $("#msg").textContent="Yükleniyor…";
+  try{
+    ROWS   = await q("puanlamalar?select=*&order=olusturma.desc&limit=5000");
+    const pl = await q("puanlayicilar?select=token,kosul,onam_ai,olusturma");
+    KAPSAM = await q("v_kapsam?select=*&order=puanlama_sayisi.asc");
+    const kosul={}; pl.forEach(p=>kosul[p.token]=p.kosul);
+    const puanli=ROWS.filter(r=>!r.puanlanamaz);
+    const ort=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length):null;
+    const ortB=ort(puanli.map(r=>r.butuncul)), ortS=ort(ROWS.map(r=>r.sure_sn||0));
+    $("#tiles").innerHTML=`
+      <div class="card tile"><b>${ROWS.length}</b><span class="small muted">puanlama kaydı</span></div>
+      <div class="card tile"><b>${pl.length}</b><span class="small muted">puanlayıcı</span></div>
+      <div class="card tile"><b>${ortB!==null?ortB.toFixed(2):"–"}</b><span class="small muted">ortalama bütüncül</span></div>
+      <div class="card tile"><b>${ortS!==null?Math.round(ortS):"–"} sn</b><span class="small muted">metin başına süre</span></div>`;
+    const max=Math.max(1,...KAPSAM.map(k=>k.puanlama_sayisi));
+    $("#coverage").innerHTML = KAPSAM.length ? KAPSAM.map(k=>`
+      <div style="display:grid;grid-template-columns:90px 1fr 40px;gap:10px;align-items:center;margin-bottom:7px">
+        <span class="mono small">${k.id}</span>
+        <span class="bar"><i style="width:${Math.round(k.puanlama_sayisi/max*100)}%;background:${k.capa?"var(--accent)":"var(--line-2)"}"></i></span>
+        <span class="mono small" style="text-align:right">${k.puanlama_sayisi}</span></div>`).join("")
+      + `<p class="small muted" style="margin:10px 0 0">Koyu çubuklar çapa setindeki metinlerdir.</p>`
+      : `<p class="small muted" style="margin:0">Havuzda metin yok.</p>`;
+    const byT={}; ROWS.forEach(r=>{(byT[r.token]=byT[r.token]||[]).push(r);});
+    const raters=Object.entries(byT).map(([t,rs])=>({token:t,kosul:kosul[t]||"?",n:rs.length,
+      ortB:ort(rs.filter(r=>!r.puanlanamaz).map(r=>r.butuncul)), ortS:ort(rs.map(r=>r.sure_sn||0)),
+      un:rs.filter(r=>r.puanlanamaz).length,
+      son:(rs.map(r=>r.olusturma).sort().pop()||"").slice(0,16).replace("T"," ")})).sort((a,b)=>b.n-a.n);
+    $("#tbl-r").querySelector("tbody").innerHTML = raters.map(r=>`<tr>
+      <td class="mono">${r.token}</td><td class="mono">${r.kosul}</td><td class="mono">${r.n}</td>
+      <td class="mono">${r.ortB!==null?r.ortB.toFixed(2):"–"}</td>
+      <td class="mono">${r.ortS!==null?Math.round(r.ortS):"–"}</td>
+      <td class="mono">${r.un}</td><td class="mono small">${r.son}</td></tr>`).join("")
+      || `<tr><td colspan="7" class="muted">Henüz puanlayıcı yok.</td></tr>`;
+    $("#tbl-p").querySelector("tbody").innerHTML = ROWS.slice(0,400).map(r=>`<tr>
+      <td class="mono">${r.token}</td><td class="mono">${r.metin_id}</td>
+      <td class="mono">${r.b1_gorev_icerik??"–"}</td><td class="mono">${r.b2_orgutleme??"–"}</td>
+      <td class="mono">${r.b3_sozcuk??"–"}</td><td class="mono">${r.b4_dilbilgisi??"–"}</td>
+      <td class="mono">${r.butuncul??"–"}</td><td class="mono">${r.gosterilen_ai??"–"}</td>
+      <td class="mono">${r.kaydirma??"–"}</td><td class="mono">${r.guven_derecesi??"–"}</td>
+      <td>${r.puanlanamaz?"evet":"hayır"}</td><td class="mono">${r.sure_sn??""}</td>
+      <td class="mono small">${(r.olusturma||"").slice(0,16).replace("T"," ")}</td></tr>`).join("")
+      || `<tr><td colspan="13" class="muted">Henüz kayıt yok.</td></tr>`;
+    $("#msg").textContent = ROWS.length+" kayıt · "+new Date().toLocaleString("tr-TR");
+  }catch(e){ $("#msg").textContent="Hata: "+e.message; }
+}
+
+/* ---------- metin havuzu ---------- */
+async function loadTexts(){
+  try{
+    TEXTS = await q("metinler?select=*&order=id.asc");
+    const kap = {}; (await q("v_kapsam?select=id,puanlama_sayisi")).forEach(k=>kap[k.id]=k.puanlama_sayisi);
+    $("#tbl-m").querySelector("tbody").innerHTML = TEXTS.map(t=>`<tr>
+      <td class="mono">${t.id}</td><td>${t.duzey}</td><td>${t.gorev_turu}</td>
+      <td>${t.capa?'<span class="pill ok">çapa</span>':'<span class="pill">havuz</span>'}</td>
+      <td class="mono">${(t.transkripsiyon||"").length} krk</td>
+      <td>${t.gorsel_yolu?`<button class="btn ghost small" data-img="${t.gorsel_yolu}">aç</button>`:'<span class="muted">—</span>'}</td>
+      <td>${t.ham_htr?'<span class="pill ok">var</span>':'<span class="muted">—</span>'}</td>
+      <td class="mono">${kap[t.id]??0}</td>
+      <td>${t.aktif?'<span class="pill ok">aktif</span>':'<span class="pill">pasif</span>'}</td>
+      <td class="row" style="gap:6px;border-bottom:0">
+        <button class="btn ghost small" data-edit="${t.id}">düzenle</button>
+        <button class="btn danger small" data-toggle="${t.id}">${t.aktif?"pasife al":"aktife al"}</button>
+      </td></tr>`).join("") || `<tr><td colspan="10" class="muted">Havuz boş.</td></tr>`;
+
+    $("#tbl-m").querySelectorAll("[data-img]").forEach(b=>b.addEventListener("click", async ()=>{
+      try{ window.open(await signedUrl(b.dataset.img, 3600), "_blank"); }
+      catch(e){ alert("Görüntü açılamadı: "+e.message); }
+    }));
+    $("#tbl-m").querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>{
+      const t = TEXTS.find(x=>x.id===b.dataset.edit);
+      $("#m-id").value=t.id; $("#m-duzey").value=t.duzey; $("#m-gorev").value=t.gorev_turu;
+      $("#m-prompt").value=t.gorev_metni; $("#m-trans").value=t.transkripsiyon||"";
+      $("#m-htr").value=t.ham_htr||""; $("#m-capa").checked=!!t.capa;
+      IMG=null; $("#img-name").textContent = t.gorsel_yolu ? "Yüklü: "+t.gorsel_yolu : "Dosya seçilmedi";
+      window.scrollTo({top:0,behavior:"smooth"});
+    }));
+    $("#tbl-m").querySelectorAll("[data-toggle]").forEach(b=>b.addEventListener("click", async ()=>{
+      const t = TEXTS.find(x=>x.id===b.dataset.toggle);
+      try{ await patch("metinler","id=eq."+encodeURIComponent(t.id),{aktif:!t.aktif}); loadTexts(); }
+      catch(e){ alert("Güncellenemedi: "+e.message); }
+    }));
+  }catch(e){ $("#save-text-msg").textContent="Metinler yüklenemedi: "+e.message; }
+}
+function clearForm(){
+  ["m-id","m-gorev","m-prompt","m-trans","m-htr"].forEach(i=>$("#"+i).value="");
+  $("#m-capa").checked=false; IMG=null; $("#img-name").textContent="Dosya seçilmedi";
+}
+async function saveText(){
+  const id=$("#m-id").value.trim().toUpperCase();
+  if(!id){ $("#save-text-msg").textContent="Metin kodu zorunlu."; return; }
+  if(!$("#m-trans").value.trim()){ $("#save-text-msg").textContent="Transkripsiyon boş olamaz."; return; }
+  $("#btn-save-text").disabled=true; $("#save-text-msg").textContent="Kaydediliyor…";
+  try{
+    let yol = null;
+    if(IMG){
+      const uzanti = (IMG.name.split(".").pop()||"bin").toLowerCase();
+      yol = await uploadFile(id+"."+uzanti, IMG);
+    }
+    const kayit = {
+      id, duzey:$("#m-duzey").value, gorev_turu:$("#m-gorev").value.trim()||"Belirtilmedi",
+      gorev_metni:$("#m-prompt").value.trim()||"—", transkripsiyon:$("#m-trans").value.trim(),
+      ham_htr:$("#m-htr").value.trim()||null, capa:$("#m-capa").checked, aktif:true
+    };
+    if(yol) kayit.gorsel_yolu = yol;
+    await upsert("metinler", kayit, "id");
+    $("#save-text-msg").textContent = "Kaydedildi: "+id+(yol?" (görüntü yüklendi)":"");
+    clearForm(); loadTexts();
+  }catch(e){ $("#save-text-msg").textContent="Kaydedilemedi: "+e.message; }
+  finally{ $("#btn-save-text").disabled=false; }
+}
+async function bulkUpload(files){
+  const log=$("#bulk-log"); log.textContent="";
+  for(const f of files){
+    const kod = f.name.replace(/\.(docx|txt)$/i,"").trim().toUpperCase();
+    try{
+      const metin = await readTextFile(f);
+      if(!metin){ log.innerHTML += `<div>✕ ${kod} — dosya boş</div>`; continue; }
+      await upsert("metinler", {id:kod, duzey:duzeyDen(kod), gorev_turu:"Belirtilmedi",
+        gorev_metni:"—", transkripsiyon:metin, capa:false, aktif:true}, "id");
+      log.innerHTML += `<div>✓ ${kod} — ${metin.length} karakter</div>`;
+    }catch(e){ log.innerHTML += `<div>✕ ${kod} — ${e.message}</div>`; }
+  }
+  log.innerHTML += `<div class="muted">Bitti. Düzey ve görev bilgilerini tablodan düzenleyebilirsiniz.</div>`;
+  loadTexts();
+}
+
+/* ---------- olaylar ---------- */
+$("#btn-auth").addEventListener("click", async ()=>{
+  KEY=$("#key").value.trim(); if(!KEY) return;
+  try{ await q("puanlayicilar?select=token&limit=1"); }
+  catch(e){ $("#msg").textContent="Anahtar kabul edilmedi."; alert("Anahtar kabul edilmedi: "+e.message); return; }
+  $("#auth").classList.add("hidden"); $("#app").classList.remove("hidden");
+  $("#conn").textContent = "bağlı · " + SB_URL.replace("https://","");
+  loadData(); loadTexts();
+});
+$("#key").addEventListener("keydown",e=>{if(e.key==="Enter")$("#btn-auth").click();});
+$("#tab-veri").addEventListener("click",()=>{
+  $("#tab-veri").setAttribute("aria-selected","true"); $("#tab-metin").setAttribute("aria-selected","false");
+  $("#p-veri").classList.remove("hidden"); $("#p-metin").classList.add("hidden");
+});
+$("#tab-metin").addEventListener("click",()=>{
+  $("#tab-metin").setAttribute("aria-selected","true"); $("#tab-veri").setAttribute("aria-selected","false");
+  $("#p-metin").classList.remove("hidden"); $("#p-veri").classList.add("hidden");
+});
+$("#btn-load").addEventListener("click",loadData);
+$("#btn-load-texts").addEventListener("click",loadTexts);
+$("#btn-csv").addEventListener("click",()=>download("puanlamalar_"+new Date().toISOString().slice(0,10)+".csv",
+  csv(ROWS,["token","metin_id","b1_gorev_icerik","b2_orgutleme","b3_sozcuk","b4_dilbilgisi","butuncul",
+            "gosterilen_ai","kaydirma","guven_derecesi","puanlanamaz","puanlanamaz_gerekce","yorum","sure_sn","olusturma"])));
+$("#btn-long").addEventListener("click", async ()=>{
+  try{
+    const long = await q("v_mfrm_uzun?select=*&limit=20000");
+    download("mfrm_uzun_"+new Date().toISOString().slice(0,10)+".csv",
+      csv(long,["puanlayici","kosul","metin_id","duzey","gorev_turu","atama_turu","sunum_kosulu","boyut","puan","butuncul","sure_sn"]));
+  }catch(e){ $("#msg").textContent="Uzun biçim alınamadı: "+e.message; }
+});
+$("#btn-save-text").addEventListener("click",saveText);
+$("#btn-clear").addEventListener("click",clearForm);
+$("#f-img").addEventListener("change",e=>{ IMG=e.target.files[0]||null; $("#img-name").textContent = IMG?IMG.name:"Dosya seçilmedi"; });
+$("#f-trans").addEventListener("change", async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  try{ $("#m-trans").value = await readTextFile(f); if(!$("#m-id").value) $("#m-id").value=f.name.replace(/\.(docx|txt)$/i,"").toUpperCase(); }
+  catch(err){ $("#save-text-msg").textContent="Dosya okunamadı: "+err.message; }
+});
+$("#f-htr").addEventListener("change", async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  try{ $("#m-htr").value = await readTextFile(f); }
+  catch(err){ $("#save-text-msg").textContent="Dosya okunamadı: "+err.message; }
+});
+$("#f-bulk").addEventListener("change",e=>{ if(e.target.files.length) bulkUpload(Array.from(e.target.files)); });
+const drop=$("#drop-docx");
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over");}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over");}));
+drop.addEventListener("drop",e=>{
+  const fs=Array.from(e.dataTransfer.files).filter(f=>/\.(docx|txt)$/i.test(f.name));
+  if(fs.length) bulkUpload(fs);
+});
+</script>
+</body>
+</html>
