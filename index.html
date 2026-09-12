@@ -129,7 +129,16 @@ label.check{display:flex;gap:8px;align-items:flex-start;font-size:.9rem;cursor:p
 
 <div class="wrap">
 
-<section id="v-login">
+<div id="js-uyari" class="err" style="margin-top:22px">
+  <b>Sayfa tam yüklenemedi.</b> Bunun en sık nedeni, tarayıcınızdaki bir betik engelleyici eklentinin
+  (NoScript, JShelter, uBlock Origin'in JavaScript kuralı, kurumsal güvenlik eklentisi vb.) bu adrese izin vermemesidir.
+  Eklentiyi <b>puanlama.bbasaran.net</b> için kapatıp sayfayı yenileyin (<span class="mono">Ctrl+Shift+R</span>).
+  Sorun sürerse gizli/özel bir pencerede açmayı deneyin ya da bu iletiyi araştırmacıya bildirin.
+</div>
+<noscript><div class="err" style="margin-top:22px"><b>JavaScript kapalı.</b>
+  Bu sayfa çalışmak için JavaScript gerektirir. Tarayıcı ayarlarınızdan etkinleştirip sayfayı yenileyin.</div></noscript>
+
+<section id="v-login" class="hidden">
   <div class="hero">
     <div class="stack">
       <div><div class="lbl" style="margin-bottom:8px">Puanlayıcı girişi</div>
@@ -166,7 +175,7 @@ label.check{display:flex;gap:8px;align-items:flex-start;font-size:.9rem;cursor:p
     <p class="small"><b>Gönüllülük.</b> Katılım gönüllüdür; istediğiniz anda gerekçe göstermeden ayrılabilirsiniz. Bazı katılımcılara bir yapay zekâ modelinin aynı metne verdiği puan da gösterilir; koşulların ayrıntısı, araştırmanın bütünlüğü gereği veri toplama tamamlandığında paylaşılacaktır.</p>
     <label class="check"><input type="checkbox" id="ck1"><span>Yukarıdaki bilgileri okudum, araştırmaya gönüllü olarak katılmayı kabul ediyorum.</span></label>
     <label class="check"><input type="checkbox" id="ck2"><span>Metinlerin, kimlik bilgileri çıkarılmış olarak, kurum dışındaki yapay zekâ hizmetlerine gönderilmesini kabul ediyorum. <i class="muted">(İsteğe bağlı)</i></span></label>
-    <div class="row"><button class="btn" id="btn-consent" disabled>Kalibrasyona geç</button></div>
+    <div class="row"><button class="btn" id="btn-consent" disabled>Devam et</button></div>
     <p class="small err hidden" id="consent-err"></p>
   </div>
 </section>
