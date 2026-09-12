@@ -1,4 +1,25 @@
 "use strict";
+
+// --- Hata görünürlüğü: kullanıcı F12 açmadan ne olduğunu görebilsin ---
+function uyariGoster(baslik, ayrinti){
+  const u = document.getElementById("js-uyari");
+  if(!u) return;
+  u.classList.remove("hidden");
+  u.innerHTML = "<b>"+baslik+"</b> ";
+  const s = document.createElement("span");
+  s.className = "mono"; s.style.fontSize = ".8rem";
+  s.textContent = ayrinti;
+  u.appendChild(s);
+}
+window.addEventListener("error", e=>{
+  uyariGoster("Beklenmeyen bir hata oluştu. Lütfen aşağıdaki satırı araştırmacıya iletin:",
+    (e.message||"bilinmeyen hata")+" — "+(e.filename||"")+":"+(e.lineno||0));
+});
+window.addEventListener("unhandledrejection", e=>{
+  uyariGoster("Bir işlem tamamlanamadı. Lütfen aşağıdaki satırı araştırmacıya iletin:",
+    String((e.reason && e.reason.message) || e.reason || "bilinmeyen"));
+});
+
 const SB_URL = "https://dfpwqgzinuwwjwzxrioq.supabase.co";
 const SB_KEY = "sb_publishable_uFeo3pNENWlZBt0_gBIXtQ_YMzTyQjt";
 
@@ -108,6 +129,18 @@ function renderDims(){
       x.classList.toggle("dolu", j<i);
     });
     ready();
+  }));
+  DIMS.forEach(d=>oklarBagla('.dim[data-dim="'+d.id+'"] .scale button'));
+  oklarBagla("#butuncul button");
+  oklarBagla("#guven button");
+}
+function oklarBagla(secici){
+  const grup = $$(secici);
+  grup.forEach((b,i)=>b.addEventListener("keydown",e=>{
+    const yon = {ArrowRight:1, ArrowDown:1, ArrowLeft:-1, ArrowUp:-1}[e.key];
+    if(yon === undefined) return;
+    e.preventDefault();
+    grup[(i + yon + grup.length) % grup.length].focus();
   }));
 }
 function scores(){
@@ -236,4 +269,13 @@ $("#btn-pause").addEventListener("click",()=>{clearInterval(S.timer);view("v-log
   $("#login-msg").textContent="Oturum duraklatıldı. Aynı kodla girdiğinizde kaldığınız yerden devam edersiniz.";});
 $("#btn-restart").addEventListener("click",()=>location.reload());
 
+// Yarım kalmış bir puanlamayla sayfadan ayrılmaya karşı koruma
+window.addEventListener("beforeunload", e=>{
+  if($("#v-rate").classList.contains("hidden")) return;
+  const sc = scores();
+  if(Object.values(sc).some(v=>v!==null) || butuncul()!==null){ e.preventDefault(); e.returnValue=""; }
+});
+
 renderDims();
+document.getElementById("js-uyari").classList.add("hidden");
+document.getElementById("v-login").classList.remove("hidden");
