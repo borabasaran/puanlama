@@ -56,7 +56,9 @@ function view(id){
   window.scrollTo(0,0);
 }
 function renderCalib(){
-  $("#calib-dims").innerHTML = DIMS.map(d=>`<div class="dim"><h3>${d.ad}</h3>
+  const el = $("#calib-dims");
+  if(!el) return;
+  el.innerHTML = DIMS.map(d=>`<div class="dim"><h3>${d.ad}</h3>
     <div style="display:grid;gap:4px;margin-top:8px">${d.d.map((x,i)=>
       `<div class="small"><b class="mono" style="color:var(--accent-ink)">${i}</b> — ${x}</div>`).join("")}</div></div>`).join("");
 }
@@ -142,7 +144,8 @@ function loadItem(){
     $("#ai-just").textContent = it.ai_gerekce || "";
   }
   $$("#dims .scale button").forEach(b=>b.setAttribute("aria-pressed","false"));
-  DIMS.forEach(d=>$("#hint-"+d.id).textContent="Bir puan seçin; tanımı burada görünür.");
+  DIMS.forEach(d=>{const h=$("#hint-"+d.id);h.classList.remove("preview");
+    h.textContent="Bir puanın üzerine gelin, tanımı burada görünsün.";});
   $$("#guven button").forEach(b=>b.setAttribute("aria-pressed","false"));
   $("#hol").value=5; $("#hol-out").textContent="5";
   $("#unscorable").checked=false; $("#unscorable-why").classList.add("hidden");
