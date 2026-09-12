@@ -102,6 +102,10 @@ function renderDims(){
   $$("#guven button").forEach(b=>b.addEventListener("click",()=>{
     $$("#guven button").forEach(x=>x.setAttribute("aria-pressed", x===b?"true":"false"));
   }));
+  $$("#butuncul button").forEach(b=>b.addEventListener("click",()=>{
+    $$("#butuncul button").forEach(x=>x.setAttribute("aria-pressed", x===b?"true":"false"));
+    ready();
+  }));
 }
 function scores(){
   const o={};
@@ -109,9 +113,10 @@ function scores(){
   return o;
 }
 function guven(){ const s=document.querySelector('#guven button[aria-pressed="true"]'); return s?+s.dataset.v:null; }
+function butuncul(){ const s=document.querySelector('#butuncul button[aria-pressed="true"]'); return s?+s.dataset.v:null; }
 function ready(){
   const sc=scores(), un=$("#unscorable").checked;
-  const eksik = Object.values(sc).filter(v=>v===null).length;
+  const eksik = Object.values(sc).filter(v=>v===null).length + (butuncul()===null?1:0);
   $("#btn-save").disabled = !un && eksik>0;
   const msg=$("#save-msg");
   if(!un && eksik>0){ msg.textContent = "Devam etmek için "+eksik+" ölçütü daha puanlayın."; msg.style.color="var(--ink-2)"; }
@@ -147,7 +152,7 @@ function loadItem(){
   DIMS.forEach(d=>{const h=$("#hint-"+d.id);h.classList.remove("preview");
     h.textContent="Bir puanın üzerine gelin, tanımı burada görünsün.";});
   $$("#guven button").forEach(b=>b.setAttribute("aria-pressed","false"));
-  $("#hol").value=5; $("#hol-out").textContent="5";
+  $$("#butuncul button").forEach(b=>b.setAttribute("aria-pressed","false"));
   $("#unscorable").checked=false; $("#unscorable-why").classList.add("hidden");
   $("#note").value=""; $("#save-msg").textContent=""; $("#save-msg").style.color="";
   ready();
@@ -161,13 +166,13 @@ async function save(){
     const r = await rpc("puan_kaydet",{
       p_token:S.token, p_metin:it.metin_id,
       p_b1:sc.b1, p_b2:sc.b2, p_b3:sc.b3, p_b4:sc.b4,
-      p_butuncul:+$("#hol").value, p_puanlanamaz:un,
+      p_butuncul: butuncul(), p_puanlanamaz:un,
       p_gerekce: un ? $("#unscorable-why").value : null,
       p_guven: guven(), p_yorum: $("#note").value.trim() || null,
       p_sure: Math.round((Date.now()-S.tStart)/1000)
     });
     it.puanlandi = true;
-    S.saved.push({butuncul: un?null:+$("#hol").value, sure: Math.round((Date.now()-S.tStart)/1000), un});
+    S.saved.push({butuncul: un?null:butuncul(), sure: Math.round((Date.now()-S.tStart)/1000), un});
     $("#save-msg").textContent = "✓ Kaydedildi ("+r.tamamlanan+"/"+S.plan.length+") — sıradaki metin yükleniyor.";
     $("#save-msg").style.color = "var(--accent-ink)";
     S.idx = nextUnrated();
@@ -222,7 +227,6 @@ $("#btn-consent").addEventListener("click",async ()=>{
   }
 });
 $("#btn-start").addEventListener("click",()=>{S.idx=nextUnrated();timerStart();view("v-rate");loadItem();});
-$("#hol").addEventListener("input",e=>$("#hol-out").textContent=e.target.value);
 $("#unscorable").addEventListener("change",e=>{$("#unscorable-why").classList.toggle("hidden",!e.target.checked);ready();});
 $("#btn-save").addEventListener("click",save);
 $("#btn-pause").addEventListener("click",()=>{clearInterval(S.timer);view("v-login");
