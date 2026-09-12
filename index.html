@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Almanca Yazma Puanlama Platformu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Source+Sans+3:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ground:#f4f3ee; --surface:#fff; --surface-2:#eceae3; --ink:#1a211e; --ink-2:#59635d;
+  --line:#d8d5cb; --line-2:#c2beb2; --accent:#2c6a5a; --accent-soft:#e2ece8; --accent-ink:#1d4c40;
+  --amber:#9a6212; --amber-soft:#f6ecd9; --danger:#8f3a26; --on-accent:#fff;
+  --r:6px; --r-lg:10px; --shadow:0 1px 2px rgba(26,33,30,.06),0 6px 18px -12px rgba(26,33,30,.25);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#121614; --surface:#191e1c; --surface-2:#212724; --ink:#e6e8e3; --ink-2:#9aa39d;
+  --line:#2c332f; --line-2:#3c443f; --accent:#7bc0aa; --accent-soft:#1d2a26; --accent-ink:#a6d8c7;
+  --amber:#d9a353; --amber-soft:#2a2419; --danger:#d9836b; --on-accent:#0d1412;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px -12px rgba(0,0,0,.7);}}
+:root[data-theme="dark"]{
+  --ground:#121614; --surface:#191e1c; --surface-2:#212724; --ink:#e6e8e3; --ink-2:#9aa39d;
+  --line:#2c332f; --line-2:#3c443f; --accent:#7bc0aa; --accent-soft:#1d2a26; --accent-ink:#a6d8c7;
+  --amber:#d9a353; --amber-soft:#2a2419; --danger:#d9836b; --on-accent:#0d1412;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px -12px rgba(0,0,0,.7);}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ground);color:var(--ink);font-family:"Source Sans 3","Segoe UI",system-ui,sans-serif;font-size:16px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:0 60px}
+h1,h2,h3{font-family:Newsreader,Georgia,serif;font-weight:600;text-wrap:balance;margin:0}
+button{font:inherit}
+a{color:var(--accent-ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--ground) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1180px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-family:Newsreader,serif;font-size:1.05rem;font-weight:600}
+.brand small{display:block;font-family:"Source Sans 3",sans-serif;font-size:.7rem;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-2)}
+.spacer{flex:1}
+.chip{font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:3px 9px;border:1px solid var(--line-2);border-radius:999px;color:var(--ink-2);white-space:nowrap}
+.chip.on{border-color:var(--accent);color:var(--accent-ink);background:var(--accent-soft)}
+.progress{height:3px;background:var(--surface-2)}
+.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.muted{color:var(--ink-2)} .small{font-size:.88rem}
+.lbl{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.btn{background:var(--accent);color:var(--on-accent);border:1px solid var(--accent);padding:9px 18px;border-radius:var(--r);font-weight:600;cursor:pointer}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-2)}
+.btn.small{padding:5px 12px;font-size:.85rem}
+.notice{background:var(--amber-soft);border:1px solid color-mix(in srgb,var(--amber) 40%,transparent);border-radius:var(--r);padding:10px 14px;font-size:.88rem}
+.err{background:color-mix(in srgb,var(--danger) 12%,transparent);border:1px solid color-mix(in srgb,var(--danger) 40%,transparent);border-radius:var(--r);padding:10px 14px;font-size:.88rem}
+input[type=text]{font-family:"IBM Plex Mono",monospace;background:var(--surface);color:var(--ink);border:1px solid var(--line-2);border-radius:var(--r);padding:9px 12px;width:100%;max-width:320px}
+textarea,select{font:inherit;background:var(--surface);color:var(--ink);border:1px solid var(--line-2);border-radius:var(--r);padding:8px 12px}
+textarea{width:100%;resize:vertical}
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:start;margin-top:30px}
+.hero h1{font-size:2.1rem;line-height:1.15}
+.hero p{max-width:62ch}
+.meta-list{display:grid;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.meta-list div{display:flex;justify-content:space-between;gap:14px;padding:9px 14px;font-size:.9rem;border-bottom:1px solid var(--line);background:var(--surface)}
+.meta-list div:last-child{border-bottom:0}
+.meta-list span{color:var(--ink-2);font-family:"IBM Plex Mono",monospace;font-size:.82rem;text-align:right}
+.work{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:22px;align-items:start;margin-top:22px}
+.paper{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:26px 30px;box-shadow:var(--shadow)}
+.tag{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tag b{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;background:var(--surface-2);color:var(--ink-2);padding:3px 9px;border-radius:999px}
+.prompt{font-size:.9rem;color:var(--ink-2);border-left:2px solid var(--line-2);padding-left:12px;margin-bottom:18px}
+.text{font-family:Newsreader,Georgia,serif;font-size:1.14rem;line-height:1.72;max-width:60ch;white-space:pre-wrap}
+.panel{position:sticky;top:78px;display:flex;flex-direction:column;gap:14px}
+.dim{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 16px}
+.dim h3{font-size:1rem}
+.dim .hint{font-size:.8rem;color:var(--ink-2);min-height:2.4em;margin:6px 0 10px}
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.scale button{border:1px solid var(--line-2);background:var(--surface);color:var(--ink);border-radius:var(--r);padding:8px 0;font-family:"IBM Plex Mono",monospace;font-size:.95rem;cursor:pointer}
+.scale button:hover{border-color:var(--accent)}
+.scale button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:500}
+.hol{display:flex;align-items:center;gap:12px}
+.hol input{flex:1}
+.hol output{font-family:"IBM Plex Mono",monospace;font-size:1.1rem;min-width:2.2ch;text-align:right}
+.ai{background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:var(--r-lg);padding:12px 16px}
+.ai .score{font-family:"IBM Plex Mono",monospace;font-size:1.5rem;color:var(--accent-ink)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+label.check{display:flex;gap:8px;align-items:flex-start;font-size:.9rem;cursor:pointer}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 16px}
+.tile b{display:block;font-family:"IBM Plex Mono",monospace;font-size:1.65rem;line-height:1.1;color:var(--accent-ink)}
+.mono{font-family:"IBM Plex Mono",monospace}
+.hidden{display:none!important}
+@media (max-width:900px){.hero,.work{grid-template-columns:1fr}.panel{position:static}.paper{padding:20px}}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-in">
+    <div class="brand">Almanca Yazma Puanlama<small>TÜBİTAK 3005-B</small></div>
+    <div class="spacer"></div>
+    <span id="chip-token" class="chip hidden"></span>
+    <span id="chip-timer" class="chip hidden">00:00</span>
+  </div>
+  <div class="progress"><i id="bar"></i></div>
+</div>
+
+<div class="wrap">
+
+<section id="v-login">
+  <div class="hero">
+    <div class="stack">
+      <div><div class="lbl" style="margin-bottom:8px">Puanlayıcı girişi</div>
+      <h1>Almanca yazma performanslarının çevrim içi puanlanması</h1></div>
+      <p class="muted">Size iletilen erişim kodunu girerek başlayabilirsiniz. Kimlik bilgisi istenmez; kod yalnızca aynı puanlayıcının puanlarını birbirine bağlamak için kullanılır ve adınızla ilişkilendirilmez.</p>
+      <div class="notice"><b>Çalışan sistem.</b> Verdiğiniz puanlar kaydedilir ve oturumunuzu bölüp aynı kodla devam edebilirsiniz. Puanlanan metinler, etik kurul onayı beklenirken gerçek öğrenci verisi kullanılmaması için proje ekibince yazılmış örnek metinlerdir; gösterilen yapay zekâ puanları bu metinler için gerçekten üretilmiş model çıktılarıdır.</div>
+      <div class="row">
+        <input type="text" id="in-token" placeholder="ör. PK-4823" aria-label="Erişim kodu" autocomplete="off">
+        <button class="btn" id="btn-login">Giriş yap</button>
+        <button class="btn ghost" id="btn-gen">Kod üret</button>
+      </div>
+      <p class="small muted" id="login-msg"></p>
+    </div>
+    <div class="stack">
+      <div class="lbl">Oturum bilgileri</div>
+      <div class="meta-list">
+        <div><b>Puanlanacak metin</b><span id="m-count">8 (4 çapa + 4 rastgele)</span></div>
+        <div><b>Ölçüt</b><span>4 analitik + 1 bütüncül</span></div>
+        <div><b>Derecelendirme</b><span>0–4 / 0–10</span></div>
+        <div><b>Tahmini süre</b><span>~25 dk</span></div>
+        <div><b>Oturum</b><span>bölünebilir</span></div>
+        <div><b>Kayıt</b><span>otomatik</span></div>
+      </div>
+      <div class="card small muted">Gerçek veri toplamada her puanlayıcı 20 metin (10 çapa + 10 rastgele) değerlendirecek ve süre yaklaşık 60 dakika olacaktır; bu sürümde metin sayısı denemeyi kolaylaştırmak için sekize düşürülmüştür. Metin havuzu ve puanlayıcı sayısı veritabanı ayarlarından değiştirilir, arayüz kendini buna göre uyarlar.</div>
+    </div>
+  </div>
+</section>
+
+<section id="v-consent" class="hidden">
+  <div class="card stack" style="max-width:760px;margin-top:26px">
+    <h2 style="font-size:1.4rem">Gönüllü katılım ve bilgilendirme</h2>
+    <p class="small">Bu araştırma, yapay zekâ araçlarının Almanca yazma performanslarını puanlamada ne ölçüde geçerli sonuçlar ürettiğini ve öğretmenlerin değerlendirme kararlarını nasıl etkilediğini incelemektedir. Sizden sekiz öğrenci metnini dört ölçüt üzerinden değerlendirmeniz isteniyor.</p>
+    <p class="small"><b>Gizlilik.</b> Ad, kurum veya iletişim bilginiz kaydedilmez. Verdiğiniz puanlar bireysel olarak raporlanmaz; analizler toplulaştırılmış düzeyde yapılır ve puanlama davranışınız kurumunuza bildirilmez. Puanlamanız bir yeterlik ölçümü değildir.</p>
+    <p class="small"><b>Gönüllülük.</b> Katılım gönüllüdür; istediğiniz anda gerekçe göstermeden ayrılabilirsiniz. Bazı katılımcılara bir yapay zekâ modelinin aynı metne verdiği puan da gösterilir; koşulların ayrıntısı, araştırmanın bütünlüğü gereği veri toplama tamamlandığında paylaşılacaktır.</p>
+    <label class="check"><input type="checkbox" id="ck1"><span>Yukarıdaki bilgileri okudum, araştırmaya gönüllü olarak katılmayı kabul ediyorum.</span></label>
+    <label class="check"><input type="checkbox" id="ck2"><span>Metinlerin, kimlik bilgileri çıkarılmış olarak, kurum dışındaki yapay zekâ hizmetlerine gönderilmesini kabul ediyorum. <i class="muted">(İsteğe bağlı)</i></span></label>
+    <div class="row"><button class="btn" id="btn-consent" disabled>Kalibrasyona geç</button></div>
+    <p class="small err hidden" id="consent-err"></p>
+  </div>
+</section>
+
+<section id="v-calib" class="hidden">
+  <div class="card stack" style="max-width:820px;margin-top:26px">
+    <div class="lbl">Kalibrasyon</div>
+    <h2 style="font-size:1.4rem">Ölçütlerin okunması</h2>
+    <p class="small muted">Puanlamaya başlamadan önce dört ölçütü ve düzey tanımlarını gözden geçirin. Puanlama sırasında seçtiğiniz puanın tanımı ölçütün altında görünecektir.</p>
+    <div id="calib-dims" class="stack"></div>
+    <div class="notice small">Bir metni okunaklılık, aşırı kısalık veya görev dışılık nedeniyle puanlayamıyorsanız <b>“Puanlanamaz”</b> seçeneğini işaretleyin. Bu metinler analizden sessizce çıkarılmaz; işaretleme oranları ayrı bir bulgu olarak raporlanır.</div>
+    <div class="row"><button class="btn" id="btn-start">Puanlamaya başla</button></div>
+  </div>
+</section>
+
+<section id="v-rate" class="hidden">
+  <div class="work">
+    <div>
+      <div class="paper">
+        <div class="tag" id="t-tags"></div>
+        <div class="prompt" id="t-prompt"></div>
+        <div class="text" id="t-text"></div>
+      </div>
+      <p class="small muted" style="margin-top:10px">Metin <span id="t-pos" class="mono"></span> · Kod <span id="t-id" class="mono"></span></p>
+    </div>
+    <div class="panel">
+      <div id="ai-box" class="ai hidden">
+        <div class="lbl" style="color:var(--accent-ink)">Yapay zekâ değerlendirmesi</div>
+        <div class="row" style="align-items:baseline"><span class="score" id="ai-score">–</span><span class="small muted">bütüncül puan önerisi (0–10)</span></div>
+        <p class="small" id="ai-just" style="margin:6px 0 0"></p>
+      </div>
+      <div id="dims"></div>
+      <div class="dim">
+        <h3>Bütüncül puan</h3>
+        <p class="hint">Analitik puanların ortalaması değildir; metnin bütününe ilişkin genel yargınız.</p>
+        <div class="hol"><input type="range" id="hol" min="0" max="10" step="1" value="5" aria-label="Bütüncül puan"><output id="hol-out">5</output></div>
+      </div>
+      <div class="dim">
+        <h3 style="font-size:.95rem">Kararınıza ne kadar güveniyorsunuz?</h3>
+        <div class="scale" id="guven" role="group" aria-label="Güven derecesi" style="margin-top:8px">
+          <button type="button" data-v="1" aria-pressed="false">1</button>
+          <button type="button" data-v="2" aria-pressed="false">2</button>
+          <button type="button" data-v="3" aria-pressed="false">3</button>
+          <button type="button" data-v="4" aria-pressed="false">4</button>
+          <button type="button" data-v="5" aria-pressed="false">5</button>
+        </div>
+        <p class="small muted" style="margin:6px 0 0">1 = hiç güvenmiyorum · 5 = tamamen güveniyorum</p>
+      </div>
+      <div class="dim">
+        <label class="check"><input type="checkbox" id="unscorable"><span><b>Puanlanamaz</b> — gerekçe:</span></label>
+        <div class="row" style="margin-top:8px">
+          <select id="unscorable-why" class="hidden">
+            <option value="okunaklilik">Okunaklılık</option>
+            <option value="kisalik">Aşırı kısalık</option>
+            <option value="gorev-disi">Görev dışılık</option>
+            <option value="diger">Diğer</option>
+          </select>
+        </div>
+        <textarea id="note" rows="2" placeholder="İsteğe bağlı not" style="margin-top:10px"></textarea>
+      </div>
+      <div class="row">
+        <button class="btn" id="btn-save">Kaydet ve devam</button>
+        <button class="btn ghost" id="btn-pause">Oturumu duraklat</button>
+      </div>
+      <p class="small muted" id="save-msg"></p>
+    </div>
+  </div>
+</section>
+
+<section id="v-done" class="hidden">
+  <div class="card stack" style="max-width:680px;margin-top:34px;text-align:center">
+    <h2 style="font-size:1.5rem">Oturum tamamlandı</h2>
+    <p class="muted">Size atanan metinlerin tamamını puanladınız. Katkınız için teşekkür ederiz.</p>
+    <div class="grid4" id="done-stats"></div>
+    <p class="small muted">Gerçek çalışmada bu noktada katılım ücreti süreci başlar ve veri toplama tamamlandığında ayrıntılı bilgilendirme metni gönderilir.</p>
+    <div class="row" style="justify-content:center"><button class="btn ghost" id="btn-restart">Başka bir kodla gir</button></div>
+  </div>
+</section>
+
+</div>
+
+<script>
+"use strict";
+const SB_URL = "https://dfpwqgzinuwwjwzxrioq.supabase.co";
+const SB_KEY = "sb_publishable_uFeo3pNENWlZBt0_gBIXtQ_YMzTyQjt";
+
+async function rpc(fn, body){
+  const res = await fetch(SB_URL + "/rest/v1/rpc/" + fn, {
+    method:"POST",
+    headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json"},
+    body: JSON.stringify(body||{})
+  });
+  const txt = await res.text();
+  if(!res.ok){
+    let msg = txt;
+    try{ const j = JSON.parse(txt); msg = j.message || j.hint || txt; }catch(e){}
+    throw new Error(msg);
+  }
+  return txt ? JSON.parse(txt) : null;
+}
+
+const DIMS = [
+  {id:"b1", ad:"Görev başarımı ve içerik", d:[
+    "Görev yerine getirilmemiş; metin konu dışı ya da değerlendirilemeyecek kadar kısa.",
+    "Görevin yalnızca küçük bir bölümü karşılanmış; içerik noktalarının çoğu eksik. Tür ve hedef okur gözetilmemiş.",
+    "Görev kısmen karşılanmış; içerik noktalarının bir bölümü yüzeysel işlenmiş. Kayıt yer yer tutarsız.",
+    "Görev büyük ölçüde karşılanmış; tüm içerik noktaları işlenmiş, çoğu yeterince geliştirilmiş.",
+    "Görev tam olarak karşılanmış; içerik dengeli ve ayrıntılandırılarak geliştirilmiş."]},
+  {id:"b2", ad:"Örgütleme ve tutarlılık", d:[
+    "Tanımlanabilir bir örgütlenme yok; anlamsal bağıntı kurulamıyor.",
+    "Cümleler ardışık sıralanmış; yalnızca en temel bağlaçlar, tekrarlı. Paragraf yapısı yok.",
+    "Basit bir yapı seçiliyor; bağlayıcı çeşitliliği sınırlı, yer yer akış kopuyor.",
+    "Açık yapı, işlevsel paragraflar; bağlayıcılar çeşitli ve çoğunlukla doğru.",
+    "Net ve amaca uygun yapı; geçişler bilinçli, gönderim araçları fark edilmeden işliyor."]},
+  {id:"b3", ad:"Sözcük dağarcığı", d:[
+    "Değerlendirme yapılamayacak kadar sınırlı.",
+    "Çok temel sözcükler, sık yineleme; sözcük seçimi anlamı çoğu yerde engelliyor.",
+    "Günlük konularda yeterli; konu dışına çıkıldığında yetersizlik ve ana dilden aktarım.",
+    "Konuya uygun ve yeterince çeşitli; eşdizimde ara sıra hata, anlam engellenmiyor.",
+    "Geniş, konuya özgü ve deyimsel açıdan uygun; kayıt bilinçli seçilmiş."]},
+  {id:"b4", ad:"Dilbilgisel doğruluk", d:[
+    "Değerlendirme yapılamayacak düzeyde.",
+    "Ezberlenmiş basit kalıplar; dizim, çekim ve durumda sistematik hata; anlam sık engelleniyor.",
+    "Basit yapılar çoğunlukla doğru; yan cümle, durum ve zamanda sık hata.",
+    "Basit ve karmaşık yapılar genel olarak doğru; hatalar sistematik değil.",
+    "Karmaşık yapılarda tutarlı denetim; hatalar seyrek ve dikkatsizlik düzeyinde."]}
+];
+
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const pad = n => String(n).padStart(2,"0");
+const fmt = s => pad(Math.floor(s/60))+":"+pad(s%60);
+
+const S = {token:null, kosul:null, plan:[], idx:0, timer:null, tStart:0, saved:[]};
+
+function view(id){
+  ["v-login","v-consent","v-calib","v-rate","v-done"].forEach(v=>$("#"+v).classList.toggle("hidden", v!==id));
+  window.scrollTo(0,0);
+}
+function renderCalib(){
+  $("#calib-dims").innerHTML = DIMS.map(d=>`<div class="dim"><h3>${d.ad}</h3>
+    <div style="display:grid;gap:4px;margin-top:8px">${d.d.map((x,i)=>
+      `<div class="small"><b class="mono" style="color:var(--accent-ink)">${i}</b> — ${x}</div>`).join("")}</div></div>`).join("");
+}
+function renderDims(){
+  $("#dims").innerHTML = DIMS.map(d=>`<div class="dim" data-dim="${d.id}">
+    <h3>${d.ad}</h3><p class="hint" id="hint-${d.id}">Bir puan seçin; tanımı burada görünür.</p>
+    <div class="scale" role="group" aria-label="${d.ad}">
+      ${[0,1,2,3,4].map(i=>`<button type="button" data-v="${i}" aria-pressed="false">${i}</button>`).join("")}
+    </div></div>`).join("");
+  $$("#dims .scale button").forEach(b=>b.addEventListener("click",()=>{
+    const box=b.closest(".dim"), dim=box.dataset.dim, v=+b.dataset.v;
+    box.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b?"true":"false"));
+    $("#hint-"+dim).textContent = DIMS.find(d=>d.id===dim).d[v];
+    ready();
+  }));
+  $$("#guven button").forEach(b=>b.addEventListener("click",()=>{
+    $$("#guven button").forEach(x=>x.setAttribute("aria-pressed", x===b?"true":"false"));
+  }));
+}
+function scores(){
+  const o={};
+  DIMS.forEach(d=>{const s=document.querySelector(`.dim[data-dim="${d.id}"] button[aria-pressed="true"]`);o[d.id]=s?+s.dataset.v:null;});
+  return o;
+}
+function guven(){ const s=document.querySelector('#guven button[aria-pressed="true"]'); return s?+s.dataset.v:null; }
+function ready(){
+  const sc=scores(), un=$("#unscorable").checked;
+  $("#btn-save").disabled = !un && Object.values(sc).some(v=>v===null);
+}
+function timerStart(){
+  clearInterval(S.timer);
+  const t0=Date.now();
+  $("#chip-timer").classList.remove("hidden");
+  S.timer=setInterval(()=>{$("#chip-timer").textContent=fmt(Math.floor((Date.now()-t0)/1000));},1000);
+}
+function nextUnrated(){
+  for(let i=0;i<S.plan.length;i++) if(!S.plan[i].puanlandi) return i;
+  return S.plan.length;
+}
+function loadItem(){
+  const it = S.plan[S.idx];
+  $("#t-tags").innerHTML = `<b>${it.duzey}</b><b>${it.gorev_turu}</b><b>${it.atama_turu==="capa"?"çapa seti":"rastgele"}</b>`;
+  $("#t-prompt").textContent = "Görev: " + it.gorev_metni;
+  $("#t-text").textContent = it.metin;
+  $("#t-pos").textContent = (S.idx+1)+" / "+S.plan.length;
+  $("#t-id").textContent = it.metin_id;
+  $("#bar").style.width = (S.idx/S.plan.length*100)+"%";
+  if(it.gosterilen_ai === null || it.gosterilen_ai === undefined){
+    $("#ai-box").classList.add("hidden");
+  }else{
+    $("#ai-box").classList.remove("hidden");
+    $("#ai-score").textContent = Number(it.gosterilen_ai).toFixed(1);
+    $("#ai-just").textContent = it.ai_gerekce || "";
+  }
+  $$("#dims .scale button").forEach(b=>b.setAttribute("aria-pressed","false"));
+  DIMS.forEach(d=>$("#hint-"+d.id).textContent="Bir puan seçin; tanımı burada görünür.");
+  $$("#guven button").forEach(b=>b.setAttribute("aria-pressed","false"));
+  $("#hol").value=5; $("#hol-out").textContent="5";
+  $("#unscorable").checked=false; $("#unscorable-why").classList.add("hidden");
+  $("#note").value=""; $("#save-msg").textContent="";
+  ready();
+  S.tStart=Date.now();
+}
+async function save(){
+  const it=S.plan[S.idx], sc=scores(), un=$("#unscorable").checked;
+  $("#btn-save").disabled=true; $("#save-msg").textContent="Kaydediliyor…";
+  try{
+    const r = await rpc("puan_kaydet",{
+      p_token:S.token, p_metin:it.metin_id,
+      p_b1:sc.b1, p_b2:sc.b2, p_b3:sc.b3, p_b4:sc.b4,
+      p_butuncul:+$("#hol").value, p_puanlanamaz:un,
+      p_gerekce: un ? $("#unscorable-why").value : null,
+      p_guven: guven(), p_yorum: $("#note").value.trim() || null,
+      p_sure: Math.round((Date.now()-S.tStart)/1000)
+    });
+    it.puanlandi = true;
+    S.saved.push({butuncul: un?null:+$("#hol").value, sure: Math.round((Date.now()-S.tStart)/1000), un});
+    $("#save-msg").textContent = "Kaydedildi ("+r.tamamlanan+"/"+S.plan.length+").";
+    S.idx = nextUnrated();
+    if(S.idx >= S.plan.length) finish(); else loadItem();
+  }catch(e){
+    $("#save-msg").textContent = "Kaydedilemedi: "+e.message+" — internet bağlantınızı denetleyip yeniden deneyin.";
+    $("#btn-save").disabled=false;
+  }
+}
+function finish(){
+  clearInterval(S.timer);
+  $("#bar").style.width="100%";
+  const done=S.saved.filter(r=>!r.un);
+  const ort = done.length ? (done.reduce((a,b)=>a+b.butuncul,0)/done.length).toFixed(1) : "–";
+  $("#done-stats").innerHTML = `
+    <div class="tile"><b>${S.plan.length}</b><span class="small muted">puanlanan metin</span></div>
+    <div class="tile"><b>${fmt(S.saved.reduce((a,b)=>a+b.sure,0))}</b><span class="small muted">bu oturumdaki süre</span></div>
+    <div class="tile"><b>${ort}</b><span class="small muted">ortalama bütüncül</span></div>
+    <div class="tile"><b>${S.saved.filter(r=>r.un).length}</b><span class="small muted">puanlanamaz</span></div>`;
+  view("v-done");
+}
+
+$("#btn-gen").addEventListener("click",()=>{$("#in-token").value="PK-"+String(1000+Math.floor(Math.random()*9000));});
+$("#in-token").addEventListener("keydown",e=>{if(e.key==="Enter")$("#btn-login").click();});
+$("#btn-login").addEventListener("click",async ()=>{
+  const tok=$("#in-token").value.trim().toUpperCase();
+  if(tok.length<3){$("#login-msg").textContent="Lütfen en az üç karakterli bir erişim kodu girin.";return;}
+  $("#login-msg").textContent="Bağlanıyor…";
+  try{
+    const r = await rpc("oturum_baslat",{p_token:tok});
+    S.token=r.token; S.kosul=r.kosul; S.plan=r.plan;
+    $("#chip-token").textContent=S.token; $("#chip-token").classList.remove("hidden");
+    $("#m-count").textContent = S.plan.length + " metin";
+    $("#login-msg").textContent="";
+    if(r.tamamlanan>0){
+      S.idx = nextUnrated(); timerStart();
+      if(S.idx>=S.plan.length){ finish(); return; }
+      view("v-rate"); loadItem();
+    }else{ view("v-consent"); }
+  }catch(e){ $("#login-msg").textContent = "Bağlanılamadı: "+e.message; }
+});
+$("#ck1").addEventListener("change",()=>{$("#btn-consent").disabled=!$("#ck1").checked;});
+$("#btn-consent").addEventListener("click",async ()=>{
+  $("#btn-consent").disabled=true;
+  try{
+    const r = await rpc("oturum_baslat",{p_token:S.token, p_onam_ai:$("#ck2").checked});
+    S.plan=r.plan; $("#consent-err").classList.add("hidden");
+    renderCalib(); view("v-calib");
+  }catch(e){
+    $("#consent-err").textContent="Onam kaydedilemedi: "+e.message;
+    $("#consent-err").classList.remove("hidden"); $("#btn-consent").disabled=false;
+  }
+});
+$("#btn-start").addEventListener("click",()=>{S.idx=nextUnrated();timerStart();view("v-rate");loadItem();});
+$("#hol").addEventListener("input",e=>$("#hol-out").textContent=e.target.value);
+$("#unscorable").addEventListener("change",e=>{$("#unscorable-why").classList.toggle("hidden",!e.target.checked);ready();});
+$("#btn-save").addEventListener("click",save);
+$("#btn-pause").addEventListener("click",()=>{clearInterval(S.timer);view("v-login");
+  $("#login-msg").textContent="Oturum duraklatıldı. Aynı kodla girdiğinizde kaldığınız yerden devam edersiniz.";});
+$("#btn-restart").addEventListener("click",()=>location.reload());
+
+renderDims();
+</script>
+</body>
+</html>
