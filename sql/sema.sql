@@ -1,0 +1,5 @@
+-- Şema, projeye uygulanmış hâliyle Supabase panelinden dışa aktarılmalıdır.
+-- Bu dosya, kurulumda kullanılan taslak şemayı içerir; güncel ve yetkili sürüm
+-- veritabanının kendisidir (proje: puanlama-platformu, bölge eu-central-1).
+-- Uygulanan göçler: puanlama_semasi, puanlama_fonksiyonlari,
+-- disa_aktarim_gorunumleri, kosul_uret_search_path.
