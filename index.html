@@ -80,6 +80,14 @@ textarea{width:100%;resize:vertical}
 .scale.s11 button{padding:7px 0;font-size:.9rem}
 .ai{background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:var(--r-lg);padding:12px 16px}
 .ai .score{font-family:"IBM Plex Mono",monospace;font-size:1.5rem;color:var(--accent-ink)}
+.ai-band{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;margin-top:22px;padding:14px 20px}
+.ai-num{display:flex;align-items:baseline;gap:4px;padding-right:20px;border-right:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
+.ai-band .score{font-size:2.4rem;line-height:1}
+.ai-num .small{color:var(--accent-ink)}
+.ai-band p{max-width:88ch}
+.ai-band + .work{margin-top:14px}
+@media (max-width:600px){.ai-band{grid-template-columns:1fr;gap:8px}
+  .ai-num{border-right:0;padding-right:0}}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 label.check{display:flex;gap:8px;align-items:flex-start;font-size:.9rem;cursor:pointer}
 .grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
@@ -169,6 +177,16 @@ label.check{display:flex;gap:8px;align-items:flex-start;font-size:.9rem;cursor:p
 </section>
 
 <section id="v-rate" class="hidden">
+  <div id="ai-box" class="ai ai-band hidden">
+    <div class="ai-num">
+      <span class="score" id="ai-score">–</span>
+      <span class="small">/ 10</span>
+    </div>
+    <div>
+      <div class="lbl" style="color:var(--accent-ink)">Yapay zekâ değerlendirmesi — bütüncül puan önerisi</div>
+      <p class="small" id="ai-just" style="margin:4px 0 0"></p>
+    </div>
+  </div>
   <div class="work">
     <div>
       <div class="paper">
@@ -179,11 +197,6 @@ label.check{display:flex;gap:8px;align-items:flex-start;font-size:.9rem;cursor:p
       <p class="small muted" style="margin-top:10px">Metin <span id="t-pos" class="mono"></span> · Kod <span id="t-id" class="mono"></span></p>
     </div>
     <div class="panel">
-      <div id="ai-box" class="ai hidden">
-        <div class="lbl" style="color:var(--accent-ink)">Yapay zekâ değerlendirmesi</div>
-        <div class="row" style="align-items:baseline"><span class="score" id="ai-score">–</span><span class="small muted">bütüncül puan önerisi (0–10)</span></div>
-        <p class="small" id="ai-just" style="margin:6px 0 0"></p>
-      </div>
       <div id="dims"></div>
       <div class="dim">
         <h3>Bütüncül puan</h3>
