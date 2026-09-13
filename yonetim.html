@@ -174,12 +174,12 @@ tbody tr:last-child td{border-bottom:0}
 
       <div>
         <div class="row" style="margin-bottom:8px">
-          <div class="lbl">Havuzdaki metinler</div>
+          <div class="lbl">Havuzdaki metinler <span style="font-weight:400;text-transform:none;letter-spacing:0">— en son değiştirilen üstte</span></div>
           <div class="spacer"></div>
           <button class="btn ghost small" id="btn-load-texts">Yenile</button>
         </div>
         <div class="tblwrap"><table id="tbl-m"><thead><tr>
-          <th>kod</th><th>düzey</th><th>görev</th><th>çapa</th><th>transkripsiyon</th><th>görüntü</th><th>ham HTR</th><th>puanlanma</th><th>durum</th><th></th>
+          <th>kod</th><th>düzey</th><th>görev</th><th>çapa</th><th>transkripsiyon</th><th>görüntü</th><th>ham HTR</th><th>puanlanma</th><th>eklendi</th><th>son değişiklik</th><th>durum</th><th></th>
         </tr></thead><tbody></tbody></table></div>
       </div>
     </section>
@@ -315,7 +315,7 @@ async function loadData(){
 /* ---------- metin havuzu ---------- */
 async function loadTexts(){
   try{
-    TEXTS = await q("metinler?select=*&order=id.asc");
+    TEXTS = await q("metinler?select=*&order=guncelleme.desc");
     const kap = {}; (await q("v_kapsam?select=id,puanlama_sayisi")).forEach(k=>kap[k.id]=k.puanlama_sayisi);
     $("#tbl-m").querySelector("tbody").innerHTML = TEXTS.map(t=>`<tr>
       <td class="mono">${t.id}</td><td>${t.duzey}</td><td>${t.gorev_turu}</td>
@@ -324,11 +324,13 @@ async function loadTexts(){
       <td>${t.gorsel_yolu?`<button class="btn ghost small" data-img="${t.gorsel_yolu}">aç</button>`:'<span class="muted">—</span>'}</td>
       <td>${t.ham_htr?'<span class="pill ok">var</span>':'<span class="muted">—</span>'}</td>
       <td class="mono">${kap[t.id]??0}</td>
+      <td class="mono small">${zaman(t.olusturma)}</td>
+      <td class="mono small">${zaman(t.guncelleme)}</td>
       <td>${t.aktif?'<span class="pill ok">aktif</span>':'<span class="pill">pasif</span>'}</td>
       <td class="row" style="gap:6px;border-bottom:0">
         <button class="btn ghost small" data-edit="${t.id}">düzenle</button>
         <button class="btn danger small" data-toggle="${t.id}">${t.aktif?"pasife al":"aktife al"}</button>
-      </td></tr>`).join("") || `<tr><td colspan="10" class="muted">Havuz boş.</td></tr>`;
+      </td></tr>`).join("") || `<tr><td colspan="12" class="muted">Havuz boş.</td></tr>`;
 
     $("#tbl-m").querySelectorAll("[data-img]").forEach(b=>b.addEventListener("click", async ()=>{
       try{ window.open(await signedUrl(b.dataset.img, 3600), "_blank"); }
@@ -349,6 +351,14 @@ async function loadTexts(){
       catch(e){ alert("Güncellenemedi: "+e.message); }
     }));
   }catch(e){ bildir("hata","Metinler yüklenemedi: "+e.message); }
+}
+function zaman(t){
+  if(!t) return "—";
+  const d=new Date(t), simdi=new Date();
+  const ayni = d.toDateString()===simdi.toDateString();
+  const gg=String(d.getDate()).padStart(2,"0"), aa=String(d.getMonth()+1).padStart(2,"0");
+  const ss=String(d.getHours()).padStart(2,"0"), dk=String(d.getMinutes()).padStart(2,"0");
+  return ayni ? ("bugün "+ss+":"+dk) : (gg+"."+aa+" "+ss+":"+dk);
 }
 function bildir(tip, metin){
   const el=$("#save-text-msg");
@@ -465,7 +475,7 @@ drop.addEventListener("drop",e=>{
 </script>
 <footer class="imza">
   <span>Y&ouml;netim paneli &middot; by bbasaran</span>
-  <span>s&uuml;r&uuml;m 1.7.0 &middot; 2026-09-13</span>
+  <span>s&uuml;r&uuml;m 1.8.0 &middot; 2026-09-13</span>
 </footer>
 </body>
 </html>
