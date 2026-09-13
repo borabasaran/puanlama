@@ -56,6 +56,9 @@ tbody tr:last-child td{border-bottom:0}
 .drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
 .pill{font-size:.72rem;padding:2px 8px;border-radius:999px;background:var(--surface-2);color:var(--ink-2)}
 .pill.ok{background:var(--accent-soft);color:var(--accent-ink)}
+.imza{max-width:1180px;margin:34px auto 0;padding:12px 20px 0;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  font-size:.72rem;color:var(--ink-2);font-family:"IBM Plex Mono",monospace}
 .hidden{display:none!important}
 @media (max-width:700px){th,td{white-space:normal}}
 </style>
@@ -179,7 +182,8 @@ tbody tr:last-child td{border-bottom:0}
 
 <script>
 "use strict";
-const SB_URL = "https://dfpwqgzinuwwjwzxrioq.supabase.co";
+// Tum istekler kendi alan adimizdaki Cloudflare Worker vekili uzerinden gecer.
+const SB_URL = "https://api.bbasaran.net";
 const BUCKET = "metin-gorselleri";
 let KEY=null, ROWS=[], TEXTS=[], KAPSAM=[], IMG=null;
 const $ = s => document.querySelector(s);
@@ -434,5 +438,9 @@ drop.addEventListener("drop",e=>{
   if(fs.length) bulkUpload(fs);
 });
 </script>
+<footer class="imza">
+  <span>Y&ouml;netim paneli &middot; by bbasaran</span>
+  <span>s&uuml;r&uuml;m 1.6.0 &middot; 2026-09-13</span>
+</footer>
 </body>
 </html>
