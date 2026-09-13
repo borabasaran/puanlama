@@ -1,4 +1,5 @@
 "use strict";
+const SURUM = "1.4.0";
 
 // --- Hata görünürlüğü: kullanıcı F12 açmadan ne olduğunu görebilsin ---
 function uyariGoster(baslik, ayrinti){
@@ -277,5 +278,6 @@ window.addEventListener("beforeunload", e=>{
 });
 
 renderDims();
+console.info("Puanlama platformu sürüm "+SURUM);
 document.getElementById("js-uyari").classList.add("hidden");
 document.getElementById("v-login").classList.remove("hidden");
