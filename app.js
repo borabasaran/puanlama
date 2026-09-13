@@ -1,5 +1,5 @@
 "use strict";
-const SURUM = "1.4.0";
+const SURUM = "1.5.0";
 
 // --- Hata görünürlüğü: kullanıcı F12 açmadan ne olduğunu görebilsin ---
 function uyariGoster(baslik, ayrinti){
@@ -21,7 +21,10 @@ window.addEventListener("unhandledrejection", e=>{
     String((e.reason && e.reason.message) || e.reason || "bilinmeyen"));
 });
 
-const SB_URL = "https://dfpwqgzinuwwjwzxrioq.supabase.co";
+// Veri istekleri kendi alan adimiz uzerinden gecer (Cloudflare Worker vekili).
+// Boylece tarayici ucuncu taraf bir adrese istek atmaz; icerik engelleyici
+// eklentiler istegi kesemez.
+const SB_URL = "https://api.bbasaran.net";
 const SB_KEY = "sb_publishable_uFeo3pNENWlZBt0_gBIXtQ_YMzTyQjt";
 
 async function rpc(fn, body){
