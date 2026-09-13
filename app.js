@@ -1,5 +1,5 @@
 "use strict";
-const SURUM = "1.5.0";
+const SURUM = "1.6.0";
 
 // --- Hata görünürlüğü: kullanıcı F12 açmadan ne olduğunu görebilsin ---
 function uyariGoster(baslik, ayrinti){
