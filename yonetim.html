@@ -56,6 +56,12 @@ tbody tr:last-child td{border-bottom:0}
 .drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
 .pill{font-size:.72rem;padding:2px 8px;border-radius:999px;background:var(--surface-2);color:var(--ink-2)}
 .pill.ok{background:var(--accent-soft);color:var(--accent-ink)}
+.durum{margin:12px 0 0;padding:10px 14px;border-radius:var(--r);font-size:.9rem;display:none}
+.durum.gor{display:block}
+.durum.ok{background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);color:var(--accent-ink);font-weight:600}
+.durum.hata{background:color-mix(in srgb,var(--danger) 12%,transparent);border:1px solid color-mix(in srgb,var(--danger) 40%,transparent)}
+.durum.bilgi{background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2)}
+.zorunlu::after{content:" *";color:var(--danger);font-weight:700}
 .imza{max-width:1180px;margin:34px auto 0;padding:12px 20px 0;border-top:1px solid var(--line);
   display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
   font-size:.72rem;color:var(--ink-2);font-family:"IBM Plex Mono",monospace}
@@ -136,7 +142,7 @@ tbody tr:last-child td{border-bottom:0}
       <div class="card">
         <div class="lbl" style="margin-bottom:10px">Tek metin ekle / güncelle</div>
         <div class="form-grid">
-          <div class="field"><label for="m-id">Metin kodu</label><input id="m-id" class="mono" placeholder="B1-05"></div>
+          <div class="field"><label for="m-id" class="zorunlu">Metin kodu</label><input id="m-id" class="mono" placeholder="B1-05"></div>
           <div class="field"><label for="m-duzey">Düzey</label><select id="m-duzey"><option>A2</option><option>B1</option><option>B2</option><option>C1</option></select></div>
           <div class="field"><label for="m-gorev">Görev türü</label><input id="m-gorev" placeholder="Forum yorumu"></div>
           <div class="field"><label for="m-capa">Çapa seti</label>
@@ -145,7 +151,7 @@ tbody tr:last-child td{border-bottom:0}
         <div class="field" style="margin-top:12px"><label for="m-prompt">Görev yönergesi</label>
           <input id="m-prompt" placeholder="Bir arkadaşınıza hafta sonu planınızı anlatan kısa bir e-posta yazınız."></div>
         <div class="field" style="margin-top:12px">
-          <label for="m-trans">Altın standart transkripsiyon
+          <label for="m-trans" class="zorunlu">Altın standart transkripsiyon
             <label style="font-weight:400;text-decoration:underline;cursor:pointer;margin-left:8px">dosyadan al<input type="file" id="f-trans" accept=".docx,.txt" class="hidden"></label>
           </label>
           <textarea id="m-trans" rows="8" placeholder="Metni buraya yapıştırın veya bir .docx/.txt dosyasından alın."></textarea>
@@ -163,7 +169,7 @@ tbody tr:last-child td{border-bottom:0}
           <button class="btn ghost small" id="btn-clear">Formu temizle</button>
           <button class="btn" id="btn-save-text">Kaydet</button>
         </div>
-        <p class="small" id="save-text-msg" style="margin:10px 0 0"></p>
+        <p class="durum" id="save-text-msg"></p>
       </div>
 
       <div>
@@ -334,6 +340,7 @@ async function loadTexts(){
       $("#m-prompt").value=t.gorev_metni; $("#m-trans").value=t.transkripsiyon||"";
       $("#m-htr").value=t.ham_htr||""; $("#m-capa").checked=!!t.capa;
       IMG=null; $("#img-name").textContent = t.gorsel_yolu ? "Yüklü: "+t.gorsel_yolu : "Dosya seçilmedi";
+      formHazir();
       window.scrollTo({top:0,behavior:"smooth"});
     }));
     $("#tbl-m").querySelectorAll("[data-toggle]").forEach(b=>b.addEventListener("click", async ()=>{
@@ -341,17 +348,31 @@ async function loadTexts(){
       try{ await patch("metinler","id=eq."+encodeURIComponent(t.id),{aktif:!t.aktif}); loadTexts(); }
       catch(e){ alert("Güncellenemedi: "+e.message); }
     }));
-  }catch(e){ $("#save-text-msg").textContent="Metinler yüklenemedi: "+e.message; }
+  }catch(e){ bildir("hata","Metinler yüklenemedi: "+e.message); }
+}
+function bildir(tip, metin){
+  const el=$("#save-text-msg");
+  el.className="durum gor "+tip; el.textContent=metin;
+  el.scrollIntoView({block:"nearest",behavior:"smooth"});
+}
+function formHazir(){
+  const eksik=[];
+  if(!$("#m-id").value.trim()) eksik.push("metin kodu");
+  if(!$("#m-trans").value.trim()) eksik.push("transkripsiyon");
+  $("#btn-save-text").disabled = eksik.length>0;
+  if(eksik.length) bildir("bilgi","Kaydetmek için gerekli: "+eksik.join(" ve ")+".");
+  else if($("#save-text-msg").classList.contains("bilgi")) $("#save-text-msg").className="durum";
 }
 function clearForm(){
   ["m-id","m-gorev","m-prompt","m-trans","m-htr"].forEach(i=>$("#"+i).value="");
   $("#m-capa").checked=false; IMG=null; $("#img-name").textContent="Dosya seçilmedi";
+  formHazir();
 }
 async function saveText(){
   const id=$("#m-id").value.trim().toUpperCase();
-  if(!id){ $("#save-text-msg").textContent="Metin kodu zorunlu."; return; }
-  if(!$("#m-trans").value.trim()){ $("#save-text-msg").textContent="Transkripsiyon boş olamaz."; return; }
-  $("#btn-save-text").disabled=true; $("#save-text-msg").textContent="Kaydediliyor…";
+  if(!id){ bildir("hata","Metin kodu zorunlu."); return; }
+  if(!$("#m-trans").value.trim()){ bildir("hata","Transkripsiyon boş olamaz."); return; }
+  $("#btn-save-text").disabled=true; bildir("bilgi","Kaydediliyor…");
   try{
     let yol = null;
     if(IMG){
@@ -365,24 +386,27 @@ async function saveText(){
     };
     if(yol) kayit.gorsel_yolu = yol;
     await upsert("metinler", kayit, "id");
-    $("#save-text-msg").textContent = "Kaydedildi: "+id+(yol?" (görüntü yüklendi)":"");
     clearForm(); loadTexts();
-  }catch(e){ $("#save-text-msg").textContent="Kaydedilemedi: "+e.message; }
-  finally{ $("#btn-save-text").disabled=false; }
+    bildir("ok","✓ Kaydedildi: "+id+(yol?" — görüntü de yüklendi." : " — görüntü eklenmedi."));
+  }catch(e){ bildir("hata","Kaydedilemedi: "+e.message); }
+  finally{ $("#btn-save-text").disabled = !$("#m-id").value.trim() || !$("#m-trans").value.trim(); }
 }
 async function bulkUpload(files){
   const log=$("#bulk-log"); log.textContent="";
+  let ok=0, hata=0;
   for(const f of files){
     const kod = f.name.replace(/\.(docx|txt)$/i,"").trim().toUpperCase();
     try{
       const metin = await readTextFile(f);
-      if(!metin){ log.innerHTML += `<div>✕ ${kod} — dosya boş</div>`; continue; }
+      if(!metin){ log.innerHTML += `<div>✕ ${kod} — dosya boş</div>`; hata++; continue; }
       await upsert("metinler", {id:kod, duzey:duzeyDen(kod), gorev_turu:"Belirtilmedi",
         gorev_metni:"—", transkripsiyon:metin, capa:false, aktif:true}, "id");
-      log.innerHTML += `<div>✓ ${kod} — ${metin.length} karakter</div>`;
-    }catch(e){ log.innerHTML += `<div>✕ ${kod} — ${e.message}</div>`; }
+      log.innerHTML += `<div>✓ ${kod} — ${metin.length} karakter</div>`; ok++;
+    }catch(e){ log.innerHTML += `<div>✕ ${kod} — ${e.message}</div>`; hata++; }
   }
   log.innerHTML += `<div class="muted">Bitti. Düzey ve görev bilgilerini tablodan düzenleyebilirsiniz.</div>`;
+  bildir(hata?"hata":"ok", hata ? (ok+" dosya yüklendi, "+hata+" dosyada sorun var — ayrıntı yukarıdaki listede.")
+                                : ("✓ "+ok+" dosya havuza eklendi."));
   loadTexts();
 }
 
@@ -393,7 +417,7 @@ $("#btn-auth").addEventListener("click", async ()=>{
   catch(e){ $("#msg").textContent="Anahtar kabul edilmedi."; alert("Anahtar kabul edilmedi: "+e.message); return; }
   $("#auth").classList.add("hidden"); $("#app").classList.remove("hidden");
   $("#conn").textContent = "bağlı · " + SB_URL.replace("https://","");
-  loadData(); loadTexts();
+  loadData(); loadTexts(); formHazir();
 });
 $("#key").addEventListener("keydown",e=>{if(e.key==="Enter")$("#btn-auth").click();});
 $("#tab-veri").addEventListener("click",()=>{
@@ -418,16 +442,17 @@ $("#btn-long").addEventListener("click", async ()=>{
 });
 $("#btn-save-text").addEventListener("click",saveText);
 $("#btn-clear").addEventListener("click",clearForm);
+["m-id","m-trans"].forEach(i=>$("#"+i).addEventListener("input",formHazir));
 $("#f-img").addEventListener("change",e=>{ IMG=e.target.files[0]||null; $("#img-name").textContent = IMG?IMG.name:"Dosya seçilmedi"; });
 $("#f-trans").addEventListener("change", async e=>{
   const f=e.target.files[0]; if(!f) return;
-  try{ $("#m-trans").value = await readTextFile(f); if(!$("#m-id").value) $("#m-id").value=f.name.replace(/\.(docx|txt)$/i,"").toUpperCase(); }
-  catch(err){ $("#save-text-msg").textContent="Dosya okunamadı: "+err.message; }
+  try{ $("#m-trans").value = await readTextFile(f); if(!$("#m-id").value) $("#m-id").value=f.name.replace(/\.(docx|txt)$/i,"").toUpperCase(); formHazir(); }
+  catch(err){ bildir("hata","Dosya okunamadı: "+err.message); }
 });
 $("#f-htr").addEventListener("change", async e=>{
   const f=e.target.files[0]; if(!f) return;
   try{ $("#m-htr").value = await readTextFile(f); }
-  catch(err){ $("#save-text-msg").textContent="Dosya okunamadı: "+err.message; }
+  catch(err){ bildir("hata","Dosya okunamadı: "+err.message); }
 });
 $("#f-bulk").addEventListener("change",e=>{ if(e.target.files.length) bulkUpload(Array.from(e.target.files)); });
 const drop=$("#drop-docx");
@@ -440,7 +465,7 @@ drop.addEventListener("drop",e=>{
 </script>
 <footer class="imza">
   <span>Y&ouml;netim paneli &middot; by bbasaran</span>
-  <span>s&uuml;r&uuml;m 1.6.0 &middot; 2026-09-13</span>
+  <span>s&uuml;r&uuml;m 1.7.0 &middot; 2026-09-13</span>
 </footer>
 </body>
 </html>
