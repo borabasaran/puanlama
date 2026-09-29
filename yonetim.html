@@ -65,6 +65,9 @@ tbody tr:last-child td{border-bottom:0}
 .imza{max-width:1180px;margin:34px auto 0;padding:12px 20px 0;border-top:1px solid var(--line);
   display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
   font-size:.72rem;color:var(--ink-2);font-family:"IBM Plex Mono",monospace}
+/* Imzadaki "bbasaran" bir baglantidir ama cevresindeki metinle ayni gorunur:
+   kendi rengi yok, alti cizilmez, yalnizca uzerine gelince altcizgi belirir. */
+.imza a:hover{color:inherit;text-decoration:underline;text-underline-offset:2px}
 .hidden{display:none!important}
 @media (max-width:700px){th,td{white-space:normal}}
 </style>
@@ -475,7 +478,7 @@ drop.addEventListener("drop",e=>{
 </script>
 <footer class="imza">
   <span>Y&ouml;netim paneli</span>
-  <span>&copy; 2026 Puanlama Y&ouml;netim v1.9.0 by <a href="https://bbasaran.net" target="_blank" rel="noopener" style="color:inherit">bbasaran.net</a></span>
+  <span>&copy; 2026 Puanlama Y&ouml;netim v1.9.0 by <a href="https://bbasaran.net" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">bbasaran</a></span>
 </footer>
 </body>
 </html>
